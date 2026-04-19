@@ -65,16 +65,59 @@
         </template>
       </li>
     </ul>
-    <input type="text" placeholder="Beverage Name" />
-    <button>🍺 Make Beverage</button>
+    <input v-model="name" type="text" placeholder="Beverage Name" />
+    <button @click="makeBeverage">🍺 Make Beverage</button>
   </div>
-  <div id="beverage-container" style="margin-top: 20px"></div>
+  <div v-if="beverageStore.user != null" class="loggedIn">
+    <p >Welcome back {{ beverageStore.user.displayName }}!</p>
+  <div id="beverage-container" style="margin-top: 20px">
+    <ul>
+      <li>
+        <template v-for="b in beverageStore.beverages" :key="b.id">
+            <label>
+              <input
+                type="radio"
+                name="beverages"
+                :id="`r${b.id}`"
+                :value="b"
+                v-model="beverageStore.currentBeverage"
+                @change = "onSelectedChange">{{ b.name }}</label>
+        </template>   
+      </li>
+    </ul>
+  </div>
+      <button @click="logout">Sign Out</button>
+  </div>
+  <div v-else class="loggedOut">
+    <button @click="login">Sign In</button>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import Beverage from "./components/Beverage.vue";
 import { useBeverageStore } from "./stores/beverageStore";
+
+const name = ref("")
+
 const beverageStore = useBeverageStore();
+
+const makeBeverage = () => {
+  beverageStore.makeBeverage(name.value)
+}
+
+const onSelectedChange = () => {
+  beverageStore.showBeverage(beverageStore.currentBeverage!.name)
+}
+
+const login = () => {
+  beverageStore.withGoogle()
+}
+
+const logout = () => {
+  beverageStore.signOut()
+}
+
 </script>
 
 <style lang="scss">
@@ -88,7 +131,24 @@ html {
   background-color: #6e4228;
   background: linear-gradient(to bottom, #6e4228 0%, #956f5a 100%);
 }
+
 ul {
   list-style: none;
 }
+
+.loggedIn {
+  text-align: center;
+}
+
+#beverage-container li{
+  display: flex;
+  justify-content: space-around;
+}
+
+.loggedOut{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 </style>

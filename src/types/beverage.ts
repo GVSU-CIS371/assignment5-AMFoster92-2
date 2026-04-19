@@ -18,6 +18,7 @@ interface SyrupType {
 
 type BeverageType = {
   id: string;
+  userID: string;
   name: string;
   temp: string;
   base: BaseBeverageType;
